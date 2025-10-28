@@ -1,124 +1,114 @@
-# Library Management System
+# Library System Database
 
-A complete library management system with RFID integration capabilities, built with React frontend and Spring Boot backend.
+MySQL database schema and scripts for the Library Management System.
 
-## Project Structure
+## Database Schema
 
+### Tables
+- **users**: Library users (students, staff, etc.)
+- **books**: Book catalog with barcodes
+- **transactions**: Book issue/return records
+- **book_requests**: Book request system
+
+## Setup Instructions
+
+### 1. Create Database
+```sql
+CREATE DATABASE library_system;
+USE library_system;
 ```
-library-system/
-├── frontend/          # React frontend application
-├── backend/           # Spring Boot REST API
-├── database/          # MySQL database scripts
-└── README.md         # This file
-```
 
-## Features
-
-- **User Authentication**: JWT-based secure login
-- **Book Management**: Issue and return books with barcode scanning
-- **Transaction Tracking**: Complete history of all book transactions
-- **RFID Integration Ready**: Prepared for RFID card system integration
-- **Responsive Design**: Modern UI with Bootstrap
-- **RESTful API**: Clean backend architecture
-
-## Quick Start
-
-### 1. Database Setup
+### 2. Run Setup Script
 ```bash
-cd database
 mysql -u root -p library_system < setup.sql
+```
+
+### 3. Add Sample Data
+```bash
+# Add sample books
 mysql -u root -p library_system < add_my_books.sql
+
+# Add additional books (optional)
+mysql -u root -p library_system < add_cs001_book.sql
+mysql -u root -p library_system < add_your_books.sql
 ```
 
-### 2. Backend Setup
+### 4. Generate Barcodes (Optional)
 ```bash
-cd backend
-# Update application.properties with your database credentials
-mvn spring-boot:run
+mysql -u root -p library_system < scripts/generate_barcodes.sql
 ```
 
-### 3. Frontend Setup
-```bash
-cd frontend
-npm install
-npm start
+## Database Files
+
+- `setup.sql` - Main database schema and initial data
+- `add_my_books.sql` - Sample book data
+- `add_cs001_book.sql` - Additional CS books
+- `add_your_books.sql` - Additional books
+- `scripts/generate_barcodes.sql` - Barcode generation script
+
+## Production Database Options
+
+### 1. PlanetScale (Recommended)
+- MySQL-compatible
+- Serverless scaling
+- Free tier available
+- Easy connection string format
+
+### 2. Railway
+- MySQL hosting
+- Simple setup
+- Good for small to medium projects
+
+### 3. Supabase
+- PostgreSQL (requires schema migration)
+- Built-in authentication
+- Real-time features
+
+### 4. Neon
+- PostgreSQL serverless
+- Good performance
+- Free tier available
+
+## Connection String Format
+
+### MySQL
+```
+mysql://username:password@host:port/database_name
 ```
 
-## Deployment Guide
-
-### Frontend (Vercel)
-1. Push `frontend/` folder to GitHub repository
-2. Connect to Vercel
-3. Set environment variable: `REACT_APP_API_BASE=https://your-backend-url.com/api`
-4. Deploy
-
-### Backend (Railway/Render)
-1. Push `backend/` folder to GitHub repository
-2. Connect to Railway/Render
-3. Set environment variables:
-   - `DATABASE_URL`: Your MySQL connection string
-   - `JWT_SECRET`: Secure JWT secret
-   - `CORS_ALLOWED_ORIGINS`: Your frontend URL
-4. Deploy
-
-### Database (PlanetScale/Railway)
-1. Create MySQL database
-2. Run database scripts from `database/` folder
-3. Get connection string for backend
-
-## RFID Integration
-
-The system is designed to support RFID card integration:
-
-### Database Schema for RFID
-- `rfid_cards` table for card management
-- `rfid_events` table for access logging
-- Secure UID hashing and salt storage
-
-### RFID Workflow
-1. User taps RFID card at entry point
-2. System validates card against database
-3. User proceeds to web interface for book operations
-4. All transactions are logged with RFID association
+### Example for PlanetScale
+```
+mysql://username:password@aws.connect.psdb.cloud/library_system?sslaccept=strict
+```
 
 ## Environment Variables
 
-### Frontend (.env)
+For production deployment, set these environment variables:
+
 ```env
-REACT_APP_API_BASE=http://localhost:8080/api
+DATABASE_URL=mysql://username:password@host:port/database_name
+DB_HOST=your-mysql-host
+DB_PORT=3306
+DB_NAME=library_system
+DB_USERNAME=your-username
+DB_PASSWORD=your-password
 ```
 
-### Backend (application.properties)
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/library_system
-spring.datasource.username=root
-spring.datasource.password=your_password
-jwt.secret=your-jwt-secret
-cors.allowed.origins=http://localhost:3000
+## Migration Notes
+
+If migrating from MySQL to PostgreSQL:
+1. Update data types (AUTO_INCREMENT → SERIAL)
+2. Update syntax differences
+3. Test all queries thoroughly
+
+## Backup and Restore
+
+### Backup
+```bash
+mysqldump -u username -p library_system > backup.sql
 ```
 
-## API Endpoints
-
-- `POST /api/auth/login` - User authentication
-- `POST /api/books/issue` - Issue a book
-- `POST /api/books/return` - Return a book
-- `GET /api/transactions/history` - Transaction history
-
-## Technology Stack
-
-- **Frontend**: React, Bootstrap, Axios
-- **Backend**: Spring Boot, Spring Security, JWT
-- **Database**: MySQL
-- **Deployment**: Vercel (Frontend), Railway/Render (Backend)
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
+### Restore
+```bash
+mysql -u username -p library_system < backup.sql
+```
